@@ -2,7 +2,7 @@ package queue
 
 
 
-type Queue interface {
+type IQueue interface {
 	Pop () (v interface{}, err error)
 	TryPop() (interface{}, error)
 	Push(v interface{}) error

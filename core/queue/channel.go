@@ -5,9 +5,11 @@ import (
 	"errors"
 )
 
+var QUEUE_CLOSED_ERROR = errors.New("[ChannelQueue]Queue has been closed!")
+
 type ChannelQueue struct {
 	ch chan interface{}
-	closeFlagLock sync.Mutex
+	closeFlagLock sync.RWMutex
 	popLock sync.Mutex
 	ifClose bool
 }
@@ -28,6 +30,10 @@ func (q *ChannelQueue) IsClose() bool {
 
 func (q *ChannelQueue) Close() (err error) {
 	q.closeFlagLock.Lock()
+	if q.ifClose == true {
+		q.closeFlagLock.Unlock()
+		return nil
+	}
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -49,7 +55,7 @@ func (q *ChannelQueue) Pop() (interface{}, error) {
 		q.popLock.Lock()
 		defer q.popLock.Unlock()
 		if q.Len() == 0 {
-			return nil, errors.New("[ChannelQueue]Queue has been closed!")
+			return nil, QUEUE_CLOSED_ERROR
 		}
 	}
 	e, ok:= <- q.ch
@@ -67,7 +73,7 @@ func (q *ChannelQueue) TryPop() (interface{}, error) {
 		q.popLock.Lock()
 		defer q.popLock.Unlock()
 		if q.Len() == 0 {
-			return nil, errors.New("[ChannelQueue]Queue has been closed!")
+			return nil, QUEUE_CLOSED_ERROR
 		}
 	}
 	select{
@@ -84,7 +90,7 @@ func (q *ChannelQueue) TryPop() (interface{}, error) {
 
 func (q *ChannelQueue) Push(v interface{}) (error) {
 	if q.IsClose() {
-		return errors.New("[ChannelQueue]Queue has been closed!")
+		return QUEUE_CLOSED_ERROR
 	}
 	q.ch <- v
 	return nil
@@ -92,7 +98,7 @@ func (q *ChannelQueue) Push(v interface{}) (error) {
 
 func (q *ChannelQueue) TryPush(v interface{}) (err error) {
 	if q.IsClose() {
-		return errors.New("[ChannelQueue]Queue has been closed!")
+		return QUEUE_CLOSED_ERROR
 	}
 	defer func() {
 		r := recover()
