@@ -1,11 +1,11 @@
 package reader
 
 import (
-	"testing"
-	"stream/core/provider"
-	"stream/core/queue"
-	"strconv"
+	"github.com/helloworld-du/stream/core/provider"
+	"github.com/helloworld-du/stream/core/queue"
 
+	"testing"
+	"strconv"
 	"time"
 )
 

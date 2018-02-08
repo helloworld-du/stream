@@ -1,8 +1,8 @@
 package reader
 
 import (
-	"stream/core/queue"
-	"stream/core/provider"
+	"github.com/helloworld-du/stream/core/queue"
+	"github.com/helloworld-du/stream/core/provider"
 
 	"errors"
 	"sync"
