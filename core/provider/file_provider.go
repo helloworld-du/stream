@@ -48,10 +48,16 @@ func (fp *FileProvider) init() (err error) {
 		for{
 			//每次读取一行
 			line, err := br.ReadString(fp.LineSeparator)
+			line = strings.TrimRight(line, ls)
 
-			fp.buf <- strings.TrimRight(line, ls)
-			fp.lastErr = err
+			if len(line) > 0 || (len(line) == 0 && err == nil) {
+				//有一行数据，不管是否有错
+				//或者这一行是空 即line长度是0而没有报错
+				fp.buf <- line
+			}
 			if err != nil {
+				//有报错，推出
+				fp.lastErr = err
 				break
 			}
 		}

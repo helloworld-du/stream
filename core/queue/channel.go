@@ -58,7 +58,7 @@ func (q *ChannelQueue) Pop() (interface{}, error) {
 			return nil, QUEUE_CLOSED_ERROR
 		}
 	}
-	e, ok:= <- q.ch
+	e, ok := <- q.ch
 	if ok {
 		return e, nil
 	} else {
