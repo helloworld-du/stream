@@ -43,6 +43,15 @@ func (r *EasyReader) Stop() (err error) {
 	r.isStop = true
 	r.lock.Unlock()
 
+	defer func() {
+		if err1 := r.msgQueue.Close(); err1 != nil && err == nil  {
+			err = err1
+		}
+
+		if err1 := r.errQueue.Close(); err1 != nil && err == nil  {
+			err = err1
+		}
+	}()
 
 	select {
 		case <- time.After(time.Second):
@@ -54,15 +63,6 @@ func (r *EasyReader) Stop() (err error) {
 			return ch
 		}():
 			err = nil
-	}
-
-
-	if err1 := r.msgQueue.Close(); err1 != nil && err == nil  {
-		err = err1
-	}
-
-	if err1 := r.errQueue.Close(); err1 != nil && err == nil  {
-		err = err1
 	}
 	return
 }
